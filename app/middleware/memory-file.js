@@ -1,39 +1,34 @@
-const mime = require('mime');
-const path = require('path');
+const mime = require('mime')
 const isTextPath = require('is-text-path')
 
 module.exports = (options, app) => {
   return async (ctx, next) => {
-    await next();
-    // todo 改成判断path里是否包含publicPath
-    if (ctx.status === 404) {
-      const currentEnv = app.config.env;
-      let msg;
-      switch (currentEnv) {
-      	case 'local':
-          try {
-            let filePath = ctx.request.path;
-            let pathArr = filePath.split('/')
-            filePath = pathArr[pathArr.length - 1]
-            // Object(it's Buffer actually) or String encoded by 'utf-8'
-            let fileData = await app.memoryFileWorker.requestClientFile(filePath);
-            // set mimeType
-            console.log(mime.getType(filePath))
-            ctx.response.type = mime.getType(filePath);
-            // not txt then transfer to Buffer and mimeType will be set to aplication/octet-stream
-            if (!isTextPath(filePath)) {
-              fileData = Buffer.from(fileData);
-            }
-            msg = fileData;
-          } catch(err) {
-            msg = err;
+    if (app.config.env === 'local') {
+      const filePath = ctx.request.path
+      const publicPathIndex = filePath.indexOf(app.config.vueSsrDevServer.publicPath)
+      if (publicPathIndex > -1) {
+        // resolve /public path problem in egg
+        /* let pathArr = filePath.split(app.config.vueSsrDevServer.publicPath)
+        const fileName = pathArr[pathArr.length - 1] */
+        const fileName = filePath.substring(publicPathIndex + app.config.vueSsrDevServer.publicPath.length)
+
+        let fileData
+        try {
+          fileData = await app.memoryFileWorker.requestClientFile(fileName)
+          ctx.response.type = mime.getType(fileName)
+          if (!isTextPath(fileName)) {
+            fileData = Buffer.from(fileData)
           }
-      		break;
-      	default:
-      		msg = 'sorry, resource not found...';
-      		break;
+        } catch (err) {
+          ctx.status = 404
+          fileData = err
+        }
+        ctx.body = fileData
+      } else {
+        await next()
       }
-      ctx.body = msg;
+    } else {
+      await next()
     }
-  };
-};
+  }
+}

@@ -8,6 +8,16 @@
   "eggPlugin": {
     "name": "vueSsrDevServer"
   },
+  "keywords": [
+    "egg",
+    "eggPlugin",
+    "egg-plugin",
+    "webpack",
+    "vue",
+    "ssr",
+    "devServer",
+    "proxy"
+  ],
   "scripts": {
     "dev": "egg-bin dev",
     "start": "egg-scripts start --port=7001 --daemon --title=egg",
@@ -19,7 +29,9 @@
     "lint": "eslint --ext .js",
     "lint:fix": "eslint --fix --ext .js",
     "ci": "npm run lint && npm run cov",
-    "autod": "autod"
+    "autod": "autod",
+    "check:npm": "npm config set registry https://registry.npmjs.org",
+    "check:taobao": "npm config set registry https://registry.npm.taobao.org"
   },
   "dependencies": {
     "egg": "^2.15.1",
@@ -57,8 +69,12 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/dongnaebi/egg-vue-ssr-dev-server"
   },
+  "bugs": {
+    "url": "https://github.com/dongnaebi/egg-vue-ssr-dev-server/issues"
+  },
+  "homepage": "https://github.com/dongnaebi/egg-vue-ssr-dev-server#readme",
   "author": "dongnaebi",
   "license": "MIT"
 }
